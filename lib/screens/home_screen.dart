@@ -1,5 +1,8 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:ussd_advanced/ussd_advanced.dart';
+import 'package:ussd_service/ussd_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -46,11 +49,6 @@ class _HomeScreenState extends State<HomeScreen> {
             // ),
 
             // dispaly responce if any
-            if (_response != null)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Text(_response!),
-              ),
 
             // buttons
             Row(
@@ -59,9 +57,14 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 ElevatedButton(
                   onPressed: () async {
-                    String? _res = await UssdAdvanced.multisessionUssd(
-                      code: "*334*7*1#",
-                      subscriptionId: -1,
+                    // String? _res = await UssdAdvanced.multisessionUssd(
+                    //   code: "*334*7*1#",
+                    //   subscriptionId: -1,
+
+                    // );
+                    String? _res = await UssdService.makeRequest(
+                      -1,
+                      "*334*7*1#",
                     );
 
                     setState(() {
@@ -79,11 +82,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 ElevatedButton(
-                  onPressed: () {
-                    UssdAdvanced.sendUssd(
-                      code: "*144#",
-                      subscriptionId: 1,
-                    );
+                  onPressed: () async {
+                    String airtimeBal = await UssdService.makeRequest(
+                        1, "*144#", const Duration(seconds: 5));
+
+                    setState(() {
+                      _response = airtimeBal;
+                    });
+                    log(airtimeBal.toString());
                   },
                   child: const Text('Airtime Bal'),
                   style: ElevatedButton.styleFrom(
@@ -102,7 +108,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: const Text('single Session\nRequest'),
                 ),
               ],
-            )
+            ),
+            const SizedBox(
+              height: 25,
+            ),
+            Text(_response == null ? "" : "Response: $_response"),
           ],
         ),
       ),
